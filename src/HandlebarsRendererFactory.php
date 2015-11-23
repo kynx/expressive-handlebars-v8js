@@ -32,13 +32,13 @@ final class HandlebarsRendererFactory
         $resolver = $container->get(ResolverInterface::class);
         $handlebars = $this->getHandlebars($resolver, $source);
 
-        $partialsNamespace = $config['partials-namespace'] ? $config['partials-namespace'] : 'partials';
+        $partialsNamespace = isset($config['partials-namespace']) ? $config['partials-namespace'] : 'partials';
         $this->injectPartials($resolver, $handlebars, $partialsNamespace);
 
-        $jsHelpers = $config['js-helpers'] ? (array) $config['js-helpers'] : [];
+        $jsHelpers = isset($config['js-helpers']) ? (array) $config['js-helpers'] : [];
         $this->injectJsHelpers($resolver, $handlebars, $jsHelpers);
 
-        $phpHelpers = $config['php-helpers'] ? (array) $config['php-helpers'] : [];
+        $phpHelpers = isset($config['php-helpers']) ? (array) $config['php-helpers'] : [];
         $this->injectPhpHelpers($handlebars, $phpHelpers);
 
         return new HandlebarsRenderer($handlebars, $resolver);
@@ -110,7 +110,7 @@ final class HandlebarsRendererFactory
             foreach ($partialPaths as $path) {
                 $it = new \GlobIterator($path . '/*.' . $extension, \FilesystemIterator::CURRENT_AS_PATHNAME);
                 foreach ($it as $filePath) {
-                    $name = substr($filePath, strlen($path), strlen($filePath) - strlen($extension) - 1);
+                    $name = $this->getName($filePath);
                     $partials[$name] = $namespace . '::' . $name;
                 }
             }

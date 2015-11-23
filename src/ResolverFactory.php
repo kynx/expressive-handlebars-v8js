@@ -31,7 +31,7 @@ final class ResolverFactory
     private function filesystemResolverFactory($config, ContainerInterface $container)
     {
         $resolver = new FilesystemResolver();
-        $resolver->setExtension(isset($config['extension']) ? $config['extension'] : 'hb')
+        $resolver->setExtension(isset($config['extension']) ? $config['extension'] : 'hbs')
             ->setSeparator(isset($config['separator']) ? $config['separator'] : '/');
         $templatePaths = isset($config['paths']) ? $config['paths'] : [];
         foreach ($templatePaths as $namespace => $paths) {

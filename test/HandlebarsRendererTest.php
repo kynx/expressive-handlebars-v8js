@@ -14,5 +14,41 @@ use PHPUnit_Framework_TestCase as TestCase;
 
 class HandlebarsRendererTest extends TestCase
 {
+    private $handlebars;
 
+    public function setUp()
+    {
+
+    }
+
+    /**
+     * @expectedException \Kynx\Expressive\Handlebars\Exception\TemplateCompilationException
+     */
+    public function testRenderInvalidTemplate()
+    {
+
+    }
+
+    public function testRenderCachedTemplate()
+    {
+
+    }
+
+    /**
+     * @expectedException \Kynx\Expressive\Handlebars\Exception\TemplateExecutionException
+     */
+    public function testRenderInvalidCachedTemplate()
+    {
+
+    }
+
+    public function testAddPath()
+    {
+
+    }
+
+    public function testGetPaths()
+    {
+
+    }
 }

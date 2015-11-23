@@ -46,7 +46,7 @@ class ResolverFactoryTest extends TestCase
 
         /* @var FilesystemResolver $filesystemResolver */
         $filesystemResolver = $resolver->fetchByType(FilesystemResolver::class);
-        $this->assertEquals('hb', $filesystemResolver->getExtension());
+        $this->assertEquals('hbs', $filesystemResolver->getExtension());
         $this->assertEquals('/', $filesystemResolver->getSeparator());
         $this->assertEquals([], $filesystemResolver->getPaths());
 

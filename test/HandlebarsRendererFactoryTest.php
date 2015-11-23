@@ -83,5 +83,92 @@ class HandlebarsRendererFactoryTest extends TestCase
         $renderer->render('nonexistent');
     }
 
+    public function testTemplate()
+    {
+        $config = [
+            'paths' => [
+                __DIR__ . '/templates'
+            ]
+        ];
+        $this->container->get(HandlebarsRendererFactory::CONFIG_KEY)
+            ->willReturn($config);
 
+        $factory = new HandlebarsRendererFactory();
+
+        $renderer = $factory($this->container->reveal());
+        $result = $renderer->render('template1');
+        $this->assertEquals("Hello World\n", $result);
+    }
+
+    public function testPartialsDefaultNamespace()
+    {
+        $config = [
+            'paths' => [
+                __DIR__ . '/templates',
+                'partials' => __DIR__ . '/partials',
+            ]
+        ];
+        $this->container->get(HandlebarsRendererFactory::CONFIG_KEY)
+            ->willReturn($config);
+
+        $factory = new HandlebarsRendererFactory();
+        $renderer = $factory($this->container->reveal());
+        $result = $renderer->render('with_partials');
+
+        $this->assertEquals("First: Partial1\nSecond: Partial2\n", $result);
+    }
+
+    public function testPartialsCustomNamespace()
+    {
+        $config = [
+            'paths' => [
+                __DIR__ . '/templates',
+                'foo' => __DIR__ . '/partials',
+            ],
+            'partials-namespace' => 'foo'
+        ];
+        $this->container->get(HandlebarsRendererFactory::CONFIG_KEY)
+            ->willReturn($config);
+
+
+        $factory = new HandlebarsRendererFactory();
+        $renderer = $factory($this->container->reveal());
+        $result = $renderer->render('with_partials');
+
+        $this->assertEquals("First: Partial1\nSecond: Partial2\n", $result);
+    }
+
+    public function testJsHelper()
+    {
+        $config = [
+            'paths' => [ __DIR__ . '/templates' ],
+            'js-helpers' => [ __DIR__ . '/js/helper.js' ]
+        ];
+        $this->container->get(HandlebarsRendererFactory::CONFIG_KEY)
+            ->willReturn($config);
+
+
+        $factory = new HandlebarsRendererFactory();
+        $renderer = $factory($this->container->reveal());
+        $result = $renderer->render('with_helper');
+
+        $this->assertEquals("Helper: Hello World", $result);
+    }
+
+    public function testPhpHelper()
+    {
+        $config = [
+            'paths' => [ __DIR__ . '/templates' ],
+            'php-helpers' => [ __DIR__ . '/php/helper.php' ]
+        ];
+        $this->container->get(HandlebarsRendererFactory::CONFIG_KEY)
+            ->willReturn($config);
+
+
+        $factory = new HandlebarsRendererFactory();
+        $renderer = $factory($this->container->reveal());
+        $result = $renderer->render('with_helper');
+
+        $this->assertEquals("Helper: Hello World", $result);
+    }
 }
