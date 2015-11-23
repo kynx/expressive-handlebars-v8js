@@ -7,6 +7,7 @@
 namespace Kynx\Expressive\Handlebars;
 
 use Interop\Container\ContainerInterface;
+use Kynx\Expressive\Handlebars\Exception\InvalidSourceException;
 use Kynx\Expressive\Handlebars\Exception\SourceNotFoundException;
 use Kynx\Template\Resolver\AggregateResolver;
 use Kynx\Template\Resolver\FilesystemResolver;
@@ -29,19 +30,7 @@ final class HandlebarsRendererFactory
         $source = isset($config['source']) ? $config['source'] : './vendor/components/handlebars.js/handlebars.js';
 
         $resolver = $container->get(ResolverInterface::class);
-
-        if (! Handlebars::isRegistered()) {
-            try {
-                Handlebars::registerHandlebarsExtension($this->getHandlebarsSource($resolver, $source));
-            } catch (\V8JsScriptException $e) {
-                throw new Exception\InvalidSourceException(
-                    sprintf("Error registering handlebars source '%s'", $source),
-                    0,
-                    $e
-                );
-            }
-        }
-        $handlebars = new Handlebars();
+        $handlebars = $this->getHandlebars($resolver, $source);
 
         $partialsNamespace = $config['partials-namespace'] ? $config['partials-namespace'] : 'partials';
         $this->injectPartials($resolver, $handlebars, $partialsNamespace);
@@ -55,6 +44,29 @@ final class HandlebarsRendererFactory
         return new HandlebarsRenderer($handlebars, $resolver);
     }
 
+    private function getHandlebars($resolver, $sourceFile)
+    {
+        $source = $this->getHandlebarsSource($resolver, $sourceFile);
+
+        // @fixme - this should probably be handled by v8js-handlebars
+        // If the handlebars extension does not compile this bars text that even ob_start() won't catch, as well
+        // as throwing an E_WARNING :(
+        set_error_handler(function($errno, $errstr) use ($sourceFile) {
+            restore_error_handler();
+            throw new InvalidSourceException(
+                sprintf("An error occurred creating handlebars instance from source '%s': %s", $sourceFile, $errstr)
+            );
+        }, E_WARNING);
+
+        if (! Handlebars::isRegistered()) {
+            Handlebars::registerHandlebarsExtension($source);
+        }
+        $handlebars = new Handlebars();
+
+        restore_error_handler();
+        return $handlebars;
+    }
+
     private function getHandlebarsSource(ResolverInterface $resolver, $source)
     {
         $key = self::NS . '::handlebars';
@@ -62,7 +74,7 @@ final class HandlebarsRendererFactory
         if (! $handlebars) {
             $handlebars = @file_get_contents($source);
             if (! $handlebars) {
-                throw new SourceNotFoundException("Couldn't load handlebars.js from '$source'");
+                throw new SourceNotFoundException("Couldn't load Handlebars from '$source'");
             }
             if ($resolver instanceof SavingResolverInterface) {
                 $resolver->save($key, $handlebars);

@@ -25,7 +25,6 @@ final class ResolverFactory
         $resolver = new AggregateResolver();
         $resolver->attach($filesystemResolver, 0);
         $resolver->attach($cacheResolver, 1);
-        var_dump($resolver);
         return $resolver;
     }
 

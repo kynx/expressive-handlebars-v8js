@@ -77,6 +77,8 @@ class ResolverFactoryTest extends TestCase
         $filesystemResolver = $resolver->fetchByType(FilesystemResolver::class);
         $this->assertEquals('handlebars', $filesystemResolver->getExtension());
         $this->assertEquals('.', $filesystemResolver->getSeparator());
-        $this->assertEquals($paths, $filesystemResolver->getPaths());
+        $paths = $filesystemResolver->getPaths();
+        $this->assertArrayHasKey('ns1', $paths);
+        $this->assertArrayHasKey('ns2', $paths);
     }
 }
